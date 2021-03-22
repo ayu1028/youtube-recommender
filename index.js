@@ -2,6 +2,9 @@
 
 const line = require('@line/bot-sdk');
 const express = require('express');
+const axios = require('axios');
+const querystring = require('querystring');
+const util = require('util');
 
 // create LINE SDK config from env variables
 const config = {
@@ -9,7 +12,15 @@ const config = {
   channelSecret: process.env.CHANNEL_SECRET,
 };
 
-console.log(config);
+//youtube api information
+const searchUrl = 'https://www.googleapis.com/youtube/v3/search';
+const baseQuery = {
+	part: 'snippet',
+	type: 'video',
+	maxResults: 50,
+	key: process.env.YOUTUBE_SECRET
+};
+const baseVideoUrl = 'https://www.youtube.com/watch';
 
 // create LINE SDK client
 const client = new line.Client(config);
@@ -21,7 +32,6 @@ const app = express();
 // register a webhook handler with middleware
 // about the middleware, please refer to doc
 app.post('/callback', line.middleware(config), (req, res) => {
-	console.log(req.body.events);
   Promise
     .all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
@@ -38,10 +48,31 @@ async function handleEvent(event) {
     return Promise.resolve(null);
   }
 
-  // create a echoing text message
-  const echo = { type: 'text', text: event.message.text };
+// youtube api searching
+	const searchText = event.message.text;
+	const query = { q: searchText };
+	const qs = querystring.stringify(Object.assign(baseQuery, query));
+	const requestUrl = util.format('%s?%s', searchUrl, qs);
+	console.log(requestUrl);
+	const ifnum = 1;
 
-	console.log(echo);
+	const searchResults = await axios.get(requestUrl);
+	const videoQuery = { v: searchResults.data.items[0].id.videoId };
+	const vqs = querystring.stringify(videoQuery);
+	const videoUrl = util.format('%s?%s', baseVideoUrl, vqs);
+	console.log(videoUrl);
+
+	  // create a echoing text message
+		const echo =[
+			{
+				type: 'text',
+				text: `"${searchText}"のレコメンド動画はこちらです！`
+			},
+			{
+				type: 'text',
+				text: videoUrl
+			}
+		];
 
   // use reply API
   return client.replyMessage(event.replyToken, echo);
