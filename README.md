@@ -1,6 +1,6 @@
 # youtube-recommender ~ youtubeの動画を勝手にレコメンド ~
 
-## - The Booksの説明 -
+## - youtube recommenderの説明 -
 これは、検索したい文字列から動画を"1件だけ"レコメンドしてくれるLine chat botです。<br>
 　→リンク：https://lin.ee/g6n58B1
 　→or QR code
