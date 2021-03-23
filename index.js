@@ -54,13 +54,11 @@ async function handleEvent(event) {
   const qs = querystring.stringify(Object.assign(baseQuery, query));
   const requestUrl = util.format('%s?%s', searchUrl, qs);
   console.log(requestUrl);
-  const ifnum = 1;
 
   const searchResults = await axios.get(requestUrl);
   const videoQuery = { v: searchResults.data.items[0].id.videoId };
   const vqs = querystring.stringify(videoQuery);
   const videoUrl = util.format('%s?%s', baseVideoUrl, vqs);
-  console.log(videoUrl);
 
     // create a echoing text message
     const echo =[
